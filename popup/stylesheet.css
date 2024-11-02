@@ -1,0 +1,14 @@
+body {
+    background-color: rgb(0, 14, 26);
+}
+
+#page-controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.page-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
