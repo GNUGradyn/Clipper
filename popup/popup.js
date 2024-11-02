@@ -21,7 +21,7 @@ var checkUrlAgainstFilter = (url, filter) => {
             filterPointer++;
             continue;
         }
-        else if(lastWildcard == -1){
+        if(lastWildcard == -1){
             filterPointer = lastWildcard;
         }
         if (lastWildcard != -1) {
