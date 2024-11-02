@@ -6,11 +6,11 @@
     "description": "Bypasses clipboard restrictions on webpages",
   
     "icons": {
-      "48": "placeholder.webp"
+      "48": "clipper.svg"
     },
   
     "browser_action": {
-      "default_icon": "placeholder.webp",
+      "default_icon": "clipper.svg",
       "default_title": "Clipper",
       "default_popup": "popup/popup.html"
     },
