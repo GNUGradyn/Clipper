@@ -3,6 +3,7 @@ var checkUrlAgainstFilter = (url, filter) => {
     let lastWildcard = -1;
     for (let urlPointer = 0; urlPointer < url.length; urlPointer++) {
         if (filter[filterPointer] == "*") {
+            if(filterPointer == filter.length) return true; // Optimization. Code will work without this, but if the last character in the filter is a wildcard there's no point checking anything past here
             lastWildcard = ++filterPointer;
             continue;
         }
