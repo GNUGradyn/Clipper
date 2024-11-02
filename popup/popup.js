@@ -11,9 +11,6 @@ const main = async () => {
         }
         const results = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url));
         if (results.length > 0) filter = Math.max(...(results.map(el => el.length)));
-
-        document.getElementById("match").innerText = filter ?? getDefaultFilterForUrl(activeTab.url);
-        document.getElementById("match-type").innerText = filter ? "Existing filter" : "New filter"
       });
 }
 

@@ -23,9 +23,19 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 25px;
+    margin-bottom: 15px;
 }
 
-.width {
-    width: 60px;
+#color-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-color: #cc5353;
+}
+
+.switch {
+    --color-gray: #373744 !important;
 }
