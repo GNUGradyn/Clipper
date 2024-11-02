@@ -8,27 +8,30 @@ const main = async () => {
  * @param {number} filter - The filter
  * @returns {boolean} Rather or not the URL matches the filter
  */
-const checkUrlAgainstFilter = (url, filter) => {
-    let wildcard = false;
+var checkUrlAgainstFilter = (url, filter) => {
     let filterPointer = 0;
+    let lastWildcard = -1;
     for (let urlPointer = 0; urlPointer < url.length; urlPointer++) {
-        if (filter[urlPointer] == "*") {
-            wildcard = true;
+        if (filter[filterPointer] == "*") {
+            if(filterPointer == filter.length) return true; // Optimization. Code will work without this, but if the last character in the filter is a wildcard there's no point checking anything past here
+            lastWildcard = ++filterPointer;
             continue;
         }
         if (filter[filterPointer] == url[urlPointer]) {
-            wildcard = false;
             filterPointer++;
             continue;
-        } 
-        if (wildcard) {
+        }
+        else if(lastWildcard == -1){
+            filterPointer = lastWildcard;
+        }
+        if (lastWildcard != -1) {
             continue;
         }
-        if ((filter[filterPointer] !== url[urlPointer])) {
+        if ((filter[filterPointer] != url[urlPointer])) {
             return false;
         }
     }
-    return true;
+    return filterPointer == filter.length;
 }
 
 main();
