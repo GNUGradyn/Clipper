@@ -6,10 +6,14 @@ const main = async () => {
 
     browser.tabs.query({active: true, currentWindow: true}, (tabs) => { 
         const activeTab = tabs[0];
+        if (!activeTab.url.startsWith("http")) {
+            document.body.innerHTML = "Not available for this page type";
+        }
         const results = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url));
         if (results.length > 0) filter = Math.max(...(results.map(el => el.length)));
 
         document.getElementById("match").innerText = filter ?? getDefaultFilterForUrl(activeTab.url);
+        document.getElementById("match-type").innerText = filter ? "Existing filter" : "New filter"
       });
 }
 

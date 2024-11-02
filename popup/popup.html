@@ -3,9 +3,22 @@
     <head>
         <script src="popup.js"></script>
         <link rel="stylesheet" href="stylesheet.css"/>
+        <link rel="stylesheet" href="slider.css"/>
     </head>
     <body>
-        <h3>Settings for</h3>
-        <p id="match"></p>
+        <h3>Clipper Settings</h3>
+        <p><span id="match-type"></span>: <span id="match"></span></p>
+        <div id="filter-controls">
+            <div class="filter-control">
+                <div>
+                    <h3>Prevent copy detection</h3>
+                    <p>Prevents websites from tampering with what you copy, or detecting that you have copied something</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                  </label>
+            </div>
+        </div>
     </body>
 </html>
