@@ -86,6 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
         allFiltersSearchQuery = event.target.value;
         renderAllFilterList();
     }
+    document.getElementById("cancel").onclick = (event) => {
+        renderAllFilterList();
+        document.getElementById("save-cancel").style.display = "none";
+        fixBottomBar();
+    }
 });
 
 const modifyActiveFilter = async (copy, paste) => {
@@ -113,6 +118,7 @@ const renderFilter = (filter, copy, paste) => {
     input.value = filter;
     input.oninput = (event) => {
         document.getElementById("save-cancel").style.display = "flex";
+        fixBottomBar();
     }
     div.appendChild(input);
     return div;

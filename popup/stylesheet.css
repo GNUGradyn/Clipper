@@ -107,4 +107,5 @@ body {
     border-radius: 2px;
     color: white;
     padding: 7px;
+    cursor: pointer;
 }
