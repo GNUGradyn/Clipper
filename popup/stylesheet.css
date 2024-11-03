@@ -63,3 +63,16 @@ body {
     width: 30px;
     height: 30px;
 }
+
+#all-filter-search {
+    width: 100%
+}
+
+#all-filter-search {
+    box-sizing: border-box;
+    background-color: #373744;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+}
