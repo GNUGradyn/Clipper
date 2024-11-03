@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Clipper",
     "version": "1.0",
     "description": "Bypasses clipboard restrictions on webpages",
@@ -7,7 +7,7 @@
       "48": "clipper.svg"
     },
     "homepage_url": "https://github.com/GNUGradyn/Clipper",
-    "browser_action": {
+    "action": {
       "default_icon": "clipper.svg",
       "default_title": "Clipper",
       "default_popup": "popup/popup.html"
