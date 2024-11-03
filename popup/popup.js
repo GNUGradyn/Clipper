@@ -1,31 +1,22 @@
 "use strict"
 
-var filters = [];
+var filters = {};
 var active = [];
-var url = "";
+var currentUrl = "";
 
-const main = async () => {
-    var filters = await browser.storage.local.get("filters");
+const startup = async () => {
+    const filterStore = await browser.storage.local.get("filters");
+    filters = filterStore.filters; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
     browser.tabs.query({active: true, currentWindow: true}, (tabs) => { 
         let activeTab = tabs[0];
         if (!activeTab.url.startsWith("http")) {
             document.body.innerHTML = "Not available for this page type";
             return;
         }
-        active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url)).sort((a, b) => b.length - a.length);
-        url = activeTab.url;
-        renderActiveFilterList();
+        active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);
+        currentUrl = activeTab.url;
+        renderFilterLists();
       });
-
-      const renderActiveFilterList = async () => {
-        const applicableFilters = document.getElementById("applicable-filters");
-        applicableFilters.innerHTML = "";
-        for (var activeFilter of active) {
-            const paragraph = document.createElement("p");
-            paragraph.innerText = activeFilter;
-            applicableFilters.appendChild(paragraph);
-        }
-      }
 }
 
 const getDefaultFilterForUrl = (url) => {
@@ -33,8 +24,8 @@ const getDefaultFilterForUrl = (url) => {
 }
 
 /**
- * @param {string} urlLowercase - The URL
- * @param {number} filterLowercase - The filter
+ * @param {string} url - The URL
+ * @param {string} filter - The filter
  * @returns {boolean} Rather or not the URL matches the filter
  */
 const checkUrlAgainstFilter = (url, filter) => {
@@ -81,12 +72,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const modifyActiveFilter = async (copy, paste) => {
     if (active.length == 0) {
-        var filter = getDefaultFilterForUrl(url);
+        var filter = getDefaultFilterForUrl(currentUrl);
         filters[filter] = {copy,paste}
-        await browser.storage.local.set(filters);
+        await browser.storage.local.set({filters});
         active.push(filter);
-        await renderActiveFilterList();
+        await renderFilterLists();
     }
 }
 
-main().catch(console.error);
+const renderFilterLists = () => {
+    renderActiveFilterList();
+    renderAllFilterList();
+}
+
+const renderActiveFilterList = async () => {
+    const applicableFilters = document.getElementById("applicable-filters");
+    applicableFilters.innerHTML = "";
+    for (var activeFilter of active) {
+        const paragraph = document.createElement("p");
+        paragraph.innerText = activeFilter;
+        applicableFilters.appendChild(paragraph);
+    }
+}
+
+const renderAllFilterList = async () => {
+    const allFilters = document.getElementById("all-filters");
+    allFilters.innerHTML = "";
+    for (var activeFilter of active) {
+        const paragraph = document.createElement("p");
+        paragraph.innerText = activeFilter;
+        allFilters.appendChild(paragraph);
+    }
+}
+
+startup().catch(console.error);
