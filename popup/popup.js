@@ -70,16 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("paste-toggle").checked
         );
     }
+    document.getElementById("paste-toggle").onchange = () => {
+        modifyActiveFilter(
+            document.getElementById("copy-toggle").checked,
+            document.getElementById("paste-toggle").checked
+        );
+    }
 });
 
 const modifyActiveFilter = async (copy, paste) => {
+    var filter = "";
     if (active.length == 0) {
-        var filter = getDefaultFilterForUrl(currentUrl);
-        filters[filter] = {copy,paste}
-        await browser.storage.local.set({filters});
+        filter = getDefaultFilterForUrl(currentUrl);
         active.push(filter);
-        await renderFilterLists();
+    } else {
+        filter = active[0];
     }
+    filters[filter] = {copy,paste}
+    await browser.storage.local.set({filters});
+    renderFilterLists();
 }
 
 const renderFilterLists = () => {

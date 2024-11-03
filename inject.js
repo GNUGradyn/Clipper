@@ -1,20 +1,22 @@
-let hasMatchingFilter = false;
+let shouldPreventCopy = false;
 
 browser.storage.local.get("filters").then(filtersStore => {
-    hasMatchingFilter = Object.keys(filtersStore.filters || {}).some(filter => 
-        checkUrlAgainstFilter(window.location.href, filter)
-    );
+    shouldPreventCopy = determineIfShouldPreventCopy(filtersStore.filters);
 });
 
+const determineIfShouldPreventCopy = (filters) => {
+    return Object.keys(filters || {}).some(filter => 
+        checkUrlAgainstFilter(window.location.href, filter) && filters[filter].copy
+    );
+}
+
 document.addEventListener("copy", (event) => {
-    if (hasMatchingFilter) event.stopImmediatePropagation();
+    if (shouldPreventCopy) event.stopImmediatePropagation();
 }, { capture: true, once: false });
 
 browser.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && changes.filters) {
-        hasMatchingFilter = Object.keys(changes.filters.newValue || {}).some(filter => 
-            checkUrlAgainstFilter(window.location.href, filter)
-        );
+        shouldPreventCopy = determineIfShouldPreventCopy(changes.filters.newValue);
     }
 });
 
