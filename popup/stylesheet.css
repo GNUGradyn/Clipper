@@ -37,5 +37,9 @@ body {
 }
 
 .switch {
-    --color-gray: #373744 !important;
+    --color-grey: #373744 !important;
+}
+
+.filter-list h3 {
+    font-size: 15px;
 }

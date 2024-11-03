@@ -1,17 +1,31 @@
 "use strict"
 
-const main = async () => {
-    let filters = await browser.storage.local.get("filters");
-    let filter = null;
+var filters = [];
+var active = [];
+var url = "";
 
+const main = async () => {
+    var filters = await browser.storage.local.get("filters");
     browser.tabs.query({active: true, currentWindow: true}, (tabs) => { 
-        const activeTab = tabs[0];
+        let activeTab = tabs[0];
         if (!activeTab.url.startsWith("http")) {
             document.body.innerHTML = "Not available for this page type";
+            return;
         }
-        const results = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url));
-        if (results.length > 0) filter = Math.max(...(results.map(el => el.length)));
+        active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url)).sort((a, b) => b.length - a.length);
+        url = activeTab.url;
+        renderActiveFilterList();
       });
+
+      const renderActiveFilterList = async () => {
+        const applicableFilters = document.getElementById("applicable-filters");
+        applicableFilters.innerHTML = "";
+        for (var activeFilter of active) {
+            const paragraph = document.createElement("p");
+            paragraph.innerText = activeFilter;
+            applicableFilters.appendChild(paragraph);
+        }
+      }
 }
 
 const getDefaultFilterForUrl = (url) => {
@@ -54,6 +68,25 @@ const checkUrlAgainstFilter = (url, filter) => {
     }
 
     return fil_ptr == filterLowercase.length;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("copy-toggle").onchange = () => {
+        modifyActiveFilter(
+            document.getElementById("copy-toggle").checked,
+            document.getElementById("paste-toggle").checked
+        );
+    }
+});
+
+const modifyActiveFilter = async (copy, paste) => {
+    if (active.length == 0) {
+        var filter = getDefaultFilterForUrl(url);
+        filters[filter] = {copy,paste}
+        await browser.storage.local.set(filters);
+        active.push(filter);
+        await renderActiveFilterList();
+    }
 }
 
 main().catch(console.error);

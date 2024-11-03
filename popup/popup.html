@@ -14,7 +14,7 @@
                     <p>Prevents websites from tampering with what you copy, or detecting that you have copied something</p>
                 </div>
                 <label class="switch">
-                    <input type="checkbox">
+                    <input type="checkbox" id="copy-toggle">
                     <span class="slider round"></span>
                   </label>
             </div>
@@ -25,16 +25,15 @@
                 <p>Prevents websites from detecting or preventing pasting</p>
             </div>
             <label class="switch">
-                <input type="checkbox">
+                <input type="checkbox" id="paste-toggle">
                 <span class="slider round"></span>
               </label>
         </div>
-        <div class="filter-list">
-            <h3>Applicable Filters</h3>
-        </div>
-        <div class="filter-list">
-            <h3>All Filters</h3>
-        </div>
+        <h3>Applicable Filters</h3>
+        <div class="filter-list" id="applicable-filters"></div>
+        <hr>
+        <h3>All Filters</h3>
+        <div class="filter-list" id="all-filters"></div>
         <div id="color-bar"></div>
     </body>
 </html>
