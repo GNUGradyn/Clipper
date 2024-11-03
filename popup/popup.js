@@ -32,10 +32,10 @@ const checkUrlAgainstFilter = (url, filter) => {
     const urlLowercase = url.toLowerCase();
     const filterLowercase = filter.toLowerCase();
     
-    url_ptr = 0;
-    fil_ptr = 0;
-    url_last_wildcard = -1;
-    fil_last_wildcard = -1;
+    let url_ptr = 0;
+    let fil_ptr = 0;
+    let url_last_wildcard = -1;
+    let fil_last_wildcard = -1;
 
     while (url_ptr < urlLowercase.length) {
         if (filterLowercase[fil_ptr] == urlLowercase[url_ptr]) {
@@ -98,9 +98,9 @@ const renderActiveFilterList = async () => {
 const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
-    for (var activeFilter of active) {
+    for (var currentFilter of Object.keys(filters)) {
         const paragraph = document.createElement("p");
-        paragraph.innerText = activeFilter;
+        paragraph.innerText = currentFilter;
         allFilters.appendChild(paragraph);
     }
 }
