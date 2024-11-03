@@ -8,19 +8,18 @@ var allFiltersSearchQuery = "";
 const startup = async () => {
     const filterStore = await browser.storage.local.get("filters");
     filters = filterStore.filters ?? {}; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
-    browser.tabs.query({active: true, currentWindow: true}, (tabs) => { 
-        let activeTab = tabs[0];
-        if (!activeTab.url.startsWith("http")) {
-            document.body.innerHTML = "Not available for this page type";
-            document.body.style.height = "unset";
-            return;
-        }
-        active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);
-        currentUrl = activeTab.url;
-        document.getElementById("copy-toggle").checked = filters[active[0]]?.copy ?? false;
-        document.getElementById("paste-toggle").checked = filters[active[0]]?.paste ?? false;
-        renderFilterLists();
-      });
+    const tabs = await browser.tabs.query({active: true, currentWindow: true});
+    let activeTab = tabs[0];
+    if (!activeTab.url.startsWith("http")) {
+        document.body.innerHTML = "Not available for this page type";
+        document.body.style.height = "unset";
+        return;
+    }
+    active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);
+    currentUrl = activeTab.url;
+    document.getElementById("copy-toggle").checked = filters[active[0]]?.copy ?? false;
+    document.getElementById("paste-toggle").checked = filters[active[0]]?.paste ?? false;
+    renderFilterLists();
 }
 
 const fixBottomBar = () => {
