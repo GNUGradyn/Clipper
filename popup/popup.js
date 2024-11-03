@@ -16,8 +16,8 @@ const startup = async () => {
         }
         active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);
         currentUrl = activeTab.url;
-        document.getElementById("copy-toggle").checked = filters[active[0]].copy;
-        document.getElementById("paste-toggle").checked = filters[active[0]].paste;
+        document.getElementById("copy-toggle").checked = filters[active[0]]?.copy ?? false;
+        document.getElementById("paste-toggle").checked = filters[active[0]]?.paste ?? false;
         renderFilterLists();
       });
 }
