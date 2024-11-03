@@ -1,18 +1,59 @@
+let hasMatchingFilter = false;
+
+browser.storage.local.get("filters").then(filtersStore => {
+    hasMatchingFilter = Object.keys(filtersStore.filters || {}).some(filter => 
+        checkUrlAgainstFilter(window.location.href, filter)
+    );
+});
+
 document.addEventListener("copy", (event) => {
-    event.stopImmediatePropagation();
+    if (hasMatchingFilter) event.stopImmediatePropagation();
 }, { capture: true, once: false });
 
-// // Use a MutationObserver to detect attempts to override the listener
-// const observer = new MutationObserver((mutations) => {
-//     for (const mutation of mutations) {
-//         if (mutation.type === "childList" || mutation.type === "attributes") {
-//             // Reattach listener to prevent overrides
-//             document.addEventListener("copy", (event) => {
-//                 event.stopImmediatePropagation();
-//             }, { capture: true, once: false });
-//         }
-//     }
-// });
+browser.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.filters) {
+        hasMatchingFilter = Object.keys(changes.filters.newValue || {}).some(filter => 
+            checkUrlAgainstFilter(window.location.href, filter)
+        );
+    }
+});
 
-// // Observe the whole document
-// observer.observe(document, { attributes: true, childList: true, subtree: true });
+
+// Copied from popup.js. maybe find a way to make it accessible from both, or better yet just centrally store the active filters somewhere the popup and this can access it. maybe background script.
+/**
+ * @param {string} url - The URL
+ * @param {string} filter - The filter
+ * @returns {boolean} Rather or not the URL matches the filter
+ */
+const checkUrlAgainstFilter = (url, filter) => {
+    const urlLowercase = url.toLowerCase();
+    const filterLowercase = filter.toLowerCase();
+    
+    let url_ptr = 0;
+    let fil_ptr = 0;
+    let url_last_wildcard = -1;
+    let fil_last_wildcard = -1;
+
+    while (url_ptr < urlLowercase.length) {
+        if (filterLowercase[fil_ptr] == urlLowercase[url_ptr]) {
+            fil_ptr++;
+            url_ptr++;
+        } else if (filterLowercase[fil_ptr] == "*") {
+            fil_ptr++;
+            fil_last_wildcard = fil_ptr;
+            url_last_wildcard = url_ptr;
+        } else if (fil_last_wildcard != -1) {
+            fil_ptr = fil_last_wildcard;
+            url_ptr = url_last_wildcard;
+            url_last_wildcard++;
+        } else {
+            return false;
+        }
+    }
+
+    while (filterLowercase[fil_ptr] == "*") {
+        fil_ptr++;
+    }
+
+    return fil_ptr == filterLowercase.length;
+}
