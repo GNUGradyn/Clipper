@@ -3,6 +3,7 @@
 var filters = {};
 var active = [];
 var currentUrl = "";
+var allFiltersSearchQuery = "";
 
 const startup = async () => {
     const filterStore = await browser.storage.local.get("filters");
@@ -77,6 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("paste-toggle").checked
         );
     }
+    document.getElementById("all-filter-search").oninput = (event) => {
+        allFiltersSearchQuery = event.target.value;
+        renderAllFilterList();
+    }
 });
 
 const modifyActiveFilter = async (copy, paste) => {
@@ -100,9 +105,9 @@ const renderFilterLists = () => {
 const renderFilter = (filter, copy, paste) => {
     const div = document.createElement("div");
     div.classList.add("filter");
-    const paragraph = document.createElement("p");
-    paragraph.innerText = filter;
-    div.appendChild(paragraph);
+    const input = document.createElement("input");
+    input.value = filter;
+    div.appendChild(input);
     return div;
 }
 
@@ -119,6 +124,7 @@ const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
     for (var currentFilter of Object.keys(filters)) {
+        if (allFiltersSearchQuery != "" && currentFilter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
         const filterData = filters[currentFilter];
         allFilters.appendChild(renderFilter(currentFilter, filterData.copy, filterData.paste));
     }
