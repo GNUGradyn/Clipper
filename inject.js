@@ -1,7 +1,9 @@
 let shouldPreventCopy = false;
+let shouldPreventPaste = false;
 
 browser.storage.local.get("filters").then(filtersStore => {
     shouldPreventCopy = determineIfShouldPreventCopy(filtersStore.filters);
+    shouldPreventPaste = determineIfShouldPreventPaste(filtersStore.filters);
 });
 
 const determineIfShouldPreventCopy = (filters) => {
@@ -10,13 +12,24 @@ const determineIfShouldPreventCopy = (filters) => {
     );
 }
 
+const determineIfShouldPreventPaste = (filters) => {
+    return Object.keys(filters || {}).some(filter => 
+        checkUrlAgainstFilter(window.location.href, filter) && filters[filter].paste
+    );
+}
+
 document.addEventListener("copy", (event) => {
     if (shouldPreventCopy) event.stopImmediatePropagation();
 }, { capture: true, once: false });
 
+document.addEventListener("paste", (event) => {
+    if (shouldPreventPaste) event.stopImmediatePropagation();
+})
+
 browser.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && changes.filters) {
         shouldPreventCopy = determineIfShouldPreventCopy(changes.filters.newValue);
+        shouldPreventPaste = determineIfShouldPreventPaste(changes.filters.newValue);
     }
 });
 

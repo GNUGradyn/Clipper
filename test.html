@@ -7,10 +7,15 @@
                 event.clipboardData.setData("text/plain", "your copy has been foiled! you fool!");
                 event.preventDefault();
             })
+            addEventListener("paste", (event) => {
+                if (event.target.id == "nopaste") event.preventDefault();
+            })
         </script>
     </head>
     <body>
         <p>Try to copy me!</p>
-        <textarea></textarea>
+        <textarea placeholder="Normal textarea for copy testing"></textarea>
+        <br>
+        <textarea placeholder="Try to paste here!" id="nopaste"></textarea>
     </body>
 </html>
