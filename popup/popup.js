@@ -97,13 +97,21 @@ const renderFilterLists = () => {
     renderAllFilterList();
 }
 
+const renderFilter = (filter, copy, paste) => {
+    const div = document.createElement("div");
+    div.classList.add("filter");
+    const paragraph = document.createElement("p");
+    paragraph.innerText = filter;
+    div.appendChild(paragraph);
+    return div;
+}
+
 const renderActiveFilterList = async () => {
     const applicableFilters = document.getElementById("applicable-filters");
     applicableFilters.innerHTML = "";
     for (var activeFilter of active) {
-        const paragraph = document.createElement("p");
-        paragraph.innerText = activeFilter;
-        applicableFilters.appendChild(paragraph);
+        const filterData = filters[activeFilter];
+        applicableFilters.appendChild(renderFilter(activeFilter, filterData.copy, filterData.paste));
     }
 }
 
@@ -111,9 +119,8 @@ const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
     for (var currentFilter of Object.keys(filters)) {
-        const paragraph = document.createElement("p");
-        paragraph.innerText = currentFilter;
-        allFilters.appendChild(paragraph);
+        const filterData = filters[currentFilter];
+        allFilters.appendChild(renderFilter(currentFilter, filterData.copy, filterData.paste));
     }
 }
 
