@@ -23,6 +23,10 @@ const startup = async () => {
       });
 }
 
+const fixBottomBar = () => {
+    document.body.style.marginBottom = document.getElementById("bottom-bar").getBoundingClientRect().height;
+}
+
 const getDefaultFilterForUrl = (url) => {
     return url.split("/").slice(0,3).join("/") + "/*";
 }
@@ -66,6 +70,7 @@ const checkUrlAgainstFilter = (url, filter) => {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    fixBottomBar();
     document.getElementById("copy-toggle").onchange = () => {
         modifyActiveFilter(
             document.getElementById("copy-toggle").checked,
@@ -107,6 +112,9 @@ const renderFilter = (filter, copy, paste) => {
     div.classList.add("filter");
     const input = document.createElement("input");
     input.value = filter;
+    input.oninput = (event) => {
+        document.getElementById("save-cancel").style.display = "flex";
+    }
     div.appendChild(input);
     return div;
 }

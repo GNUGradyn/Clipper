@@ -28,24 +28,25 @@ body {
     margin-bottom: 15px;
 }
 
-#color-bar {
+#bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #cc5353;
-}
-
-#color-bar {
-    padding: 2px;
-    display: flex;
-    align-items: center;
+    
 }
 
 #color-bar img {
     width: 16px;
     padding-left: 4px;
     padding-right: 4px;
+}
+
+#color-bar {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    background-color: #cc5353;
 }
 
 .switch {
@@ -90,4 +91,20 @@ body {
     margin-bottom: 5px;
     color: white;
     width: 100%;
+}
+
+#save-cancel {
+    width: 100%;
+    display: none;
+    justify-content: space-evenly;
+}
+
+#save-cancel button {
+    width: 45%;
+    margin: 10px;
+    background-color: #4296f4;
+    border: none;
+    border-radius: 2px;
+    color: white;
+    padding: 7px;
 }
