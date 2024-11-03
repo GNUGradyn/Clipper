@@ -102,6 +102,7 @@ body {
     width: 100%;
     display: none;
     justify-content: space-evenly;
+    background-color: #101b23;
 }
 
 #save-cancel button {

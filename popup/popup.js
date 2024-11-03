@@ -102,12 +102,12 @@ const modifyActiveFilter = async (copy, paste) => {
     if (active.length == 0) {
         filter = createFilter(getDefaultFilterForUrl(currentUrl), copy, paste);
         active.push(filter);
+        filters.push(filter);
     } else {
         filter = active[0];
     }
     filter.copy = copy;
     filter.paste = paste;
-    filters.push(filter);
     await browser.storage.local.set({filters});
     renderFilterLists();
 }
