@@ -6,7 +6,7 @@ var currentUrl = "";
 
 const startup = async () => {
     const filterStore = await browser.storage.local.get("filters");
-    filters = filterStore.filters; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
+    filters = filterStore.filters ?? {}; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
     browser.tabs.query({active: true, currentWindow: true}, (tabs) => { 
         let activeTab = tabs[0];
         if (!activeTab.url.startsWith("http")) {
