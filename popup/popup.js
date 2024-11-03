@@ -1,29 +1,26 @@
 "use strict"
 
-var filters = {};
+var filters = [];
 var active = [];
 var currentUrl = "";
 var allFiltersSearchQuery = "";
 
 const startup = async () => {
     const filterStore = await browser.storage.local.get("filters");
-    filters = filterStore.filters ?? {}; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
+    filters = filterStore.filters ?? []; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
     const tabs = await browser.tabs.query({active: true, currentWindow: true});
     let activeTab = tabs[0];
     if (!activeTab.url.startsWith("http")) {
         document.body.innerHTML = "Not available for this page type";
         document.body.style.height = "unset";
+        document.body.style.padding = "10px";
         return;
     }
-    active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);
+    active = filters.filter(x => checkUrlAgainstFilter(activeTab.url, x.filter)).sort((a, b) => b.filter.length - a.filter.length);
     currentUrl = activeTab.url;
-    document.getElementById("copy-toggle").checked = filters[active[0]]?.copy ?? false;
-    document.getElementById("paste-toggle").checked = filters[active[0]]?.paste ?? false;
+    document.getElementById("copy-toggle").checked = active[0]?.copy ?? false;
+    document.getElementById("paste-toggle").checked = active[0]?.paste ?? false;
     renderFilterLists();
-}
-
-const fixBottomBar = () => {
-    document.body.style.marginBottom = document.getElementById("bottom-bar").getBoundingClientRect().height;
 }
 
 const getDefaultFilterForUrl = (url) => {
@@ -69,7 +66,6 @@ const checkUrlAgainstFilter = (url, filter) => {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    fixBottomBar();
     document.getElementById("copy-toggle").onchange = () => {
         modifyActiveFilter(
             document.getElementById("copy-toggle").checked,
@@ -89,19 +85,29 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cancel").onclick = (event) => {
         renderAllFilterList();
         document.getElementById("save-cancel").style.display = "none";
-        fixBottomBar();
     }
 });
 
+const createFilter = (filter, copy, paste) => {
+    return {
+        uuid: crypto.randomUUID(),
+        filter,
+        copy,
+        paste
+    }
+}
+
 const modifyActiveFilter = async (copy, paste) => {
-    var filter = "";
+    var filter = {};
     if (active.length == 0) {
-        filter = getDefaultFilterForUrl(currentUrl);
+        filter = createFilter(getDefaultFilterForUrl(currentUrl), copy, paste);
         active.push(filter);
     } else {
         filter = active[0];
     }
-    filters[filter] = {copy,paste}
+    filter.copy = copy;
+    filter.paste = paste;
+    filters.push(filter);
     await browser.storage.local.set({filters});
     renderFilterLists();
 }
@@ -118,7 +124,6 @@ const renderFilter = (filter, copy, paste) => {
     input.value = filter;
     input.oninput = (event) => {
         document.getElementById("save-cancel").style.display = "flex";
-        fixBottomBar();
     }
     div.appendChild(input);
     return div;
@@ -128,18 +133,16 @@ const renderActiveFilterList = async () => {
     const applicableFilters = document.getElementById("applicable-filters");
     applicableFilters.innerHTML = "";
     for (var activeFilter of active) {
-        const filterData = filters[activeFilter];
-        applicableFilters.appendChild(renderFilter(activeFilter, filterData.copy, filterData.paste));
+        applicableFilters.appendChild(renderFilter(activeFilter.filter, activeFilter.copy, activeFilter.paste));
     }
 }
 
 const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
-    for (var currentFilter of Object.keys(filters)) {
-        if (allFiltersSearchQuery != "" && currentFilter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
-        const filterData = filters[currentFilter];
-        allFilters.appendChild(renderFilter(currentFilter, filterData.copy, filterData.paste));
+    for (var currentFilter of filters) {
+        if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
+        allFilters.appendChild(renderFilter(currentFilter.filter, currentFilter.copy, currentFilter.paste));
     }
 }
 

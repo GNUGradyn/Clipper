@@ -7,14 +7,14 @@ browser.storage.local.get("filters").then(filtersStore => {
 });
 
 const determineIfShouldPreventCopy = (filters) => {
-    return Object.keys(filters || {}).some(filter => 
-        checkUrlAgainstFilter(window.location.href, filter) && filters[filter].copy
+    return filters.some(filter => 
+        checkUrlAgainstFilter(window.location.href, filter.filter) && filter.copy
     );
 }
 
 const determineIfShouldPreventPaste = (filters) => {
-    return Object.keys(filters || {}).some(filter => 
-        checkUrlAgainstFilter(window.location.href, filter) && filters[filter].paste
+    return filters.some(filter => 
+        checkUrlAgainstFilter(window.location.href, filter.filter) && filter.paste
     );
 }
 

@@ -2,9 +2,15 @@ body {
     background-color: #101b23;
     color: white;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin: 25px;
     width: 300px;
-    height: 600px;
+    height: 100%;
+    margin: 0;
+}
+
+/*The bottom bar needs to be outside the padding because it is sticky and supposed to exceed the padding. Therefore the padding is on the content div instead of the body so it will applied to everything except the bottom bar*/
+#content {
+    margin: 25px;
+    margin-bottom: 5px;
 }
 
 .filter-control h3 {
@@ -29,11 +35,10 @@ body {
 }
 
 #bottom-bar {
-    position: fixed;
+    position: sticky;
     bottom: 0;
     left: 0;
-    right: 0;
-    
+    right: 0;   
 }
 
 #color-bar img {

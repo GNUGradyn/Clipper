@@ -7,35 +7,38 @@
         <link rel="stylesheet" href="slider.css"/>
     </head>
     <body>
-        <h3>Clipper Settings</h3>
-        <div id="filter-controls">
+        <!--The bottom bar needs to be outside the padding because it is sticky and supposed to exceed the padding. Therefore the padding is on the content div instead of the body so it will applied to everything except the bottom bar-->
+        <div id="content">
+            <h3>Clipper Settings</h3>
+            <div id="filter-controls">
+                <div class="filter-control">
+                    <div>
+                        <h3>Prevent copy detection</h3>
+                        <p>Prevents website from tampering with what you copy, or detecting that you have copied something</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="copy-toggle">
+                        <span class="slider round"></span>
+                      </label>
+                </div>
+            </div>
             <div class="filter-control">
                 <div>
-                    <h3>Prevent copy detection</h3>
-                    <p>Prevents website from tampering with what you copy, or detecting that you have copied something</p>
+                    <h3>Prevent paste detection</h3>
+                    <p>Prevents website from detecting or preventing pasting</p>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" id="copy-toggle">
+                    <input type="checkbox" id="paste-toggle">
                     <span class="slider round"></span>
                   </label>
             </div>
+            <h3>Applicable Filters</h3>
+            <div class="filter-list" id="applicable-filters"></div>
+            <hr>
+            <h3>All Filters</h3>
+            <input id="all-filter-search" placeholder="Search">
+            <div class="filter-list" id="all-filters"></div>
         </div>
-        <div class="filter-control">
-            <div>
-                <h3>Prevent paste detection</h3>
-                <p>Prevents website from detecting or preventing pasting</p>
-            </div>
-            <label class="switch">
-                <input type="checkbox" id="paste-toggle">
-                <span class="slider round"></span>
-              </label>
-        </div>
-        <h3>Applicable Filters</h3>
-        <div class="filter-list" id="applicable-filters"></div>
-        <hr>
-        <h3>All Filters</h3>
-        <input id="all-filter-search" placeholder="Search">
-        <div class="filter-list" id="all-filters"></div>
         <div id="bottom-bar">
             <div id="save-cancel">
                 <button id="cancel">Cancel</button>
