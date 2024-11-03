@@ -11,6 +11,7 @@ const startup = async () => {
         let activeTab = tabs[0];
         if (!activeTab.url.startsWith("http")) {
             document.body.innerHTML = "Not available for this page type";
+            document.body.style.height = "unset";
             return;
         }
         active = Object.keys(filters).filter(x => checkUrlAgainstFilter(activeTab.url, x)).sort((a, b) => b.length - a.length);

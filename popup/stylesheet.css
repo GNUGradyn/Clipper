@@ -4,6 +4,7 @@ body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin: 25px;
     width: 300px;
+    height: 600px;
 }
 
 .filter-control h3 {
@@ -28,12 +29,15 @@ body {
 }
 
 #color-bar {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 10px;
     background-color: #cc5353;
+}
+
+#color-bar {
+    margin: 2px;
 }
 
 .switch {
@@ -42,4 +46,12 @@ body {
 
 .filter-list h3 {
     font-size: 15px;
+}
+
+#github {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
 }
