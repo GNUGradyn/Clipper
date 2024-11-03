@@ -37,7 +37,15 @@ body {
 }
 
 #color-bar {
-    margin: 2px;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+#color-bar img {
+    width: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 .switch {
