@@ -22,9 +22,13 @@ const startup = async () => {
     }
     active = filters.filter(x => checkUrlAgainstFilter(activeTab.url, x.filter)).sort((a, b) => b.filter.length - a.filter.length);
     currentUrl = activeTab.url;
+    updateToggles();
+    renderFilterLists();
+}
+
+const updateToggles = () => {
     document.getElementById("copy-toggle").checked = active[0]?.copy ?? false;
     document.getElementById("paste-toggle").checked = active[0]?.paste ?? false;
-    renderFilterLists();
 }
 
 const getDefaultFilterForUrl = (url) => {
@@ -88,8 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     document.getElementById("cancel").onclick = (event) => {
         importFilters().then(() => {
-            renderAllFilterList();
+            renderFilterLists();
             document.getElementById("save-cancel").style.display = "none";
+            updateToggles(); // in case they updated the active filter and then cancelled it
         });
     }
     document.getElementById("save").onclick = (event) => {
@@ -149,32 +154,50 @@ const renderFilter = (filter) => {
     }
     div.appendChild(input);
 
-    const copyIcon = document.createElement("div");
-    const copyIconImg = document.createElement("img");
-    copyIconImg.src = "copy.svg";
-    copyIcon.appendChild(copyIconImg);
-    copyIcon.classList.add("copy-toggle");
-    copyIcon.classList.add("filter-control-icon");
-    if (filter.copy) copyIcon.classList.add("active");
-    div.appendChild(copyIcon);
+    const controlDiv = document.createElement("div");
+    controlDiv.classList.add("filter-controls");
 
-    const pasteIcon = document.createElement("div");
-    const pasteIconImg = document.createElement("img");
-    pasteIconImg.src = "paste.svg";
-    pasteIcon.appendChild(pasteIconImg);
-    pasteIcon.classList.add("paste-toggle");
-    pasteIcon.classList.add("filter-control-icon");
-    if (filter.paste) copyIcon.classList.add("active");
-    div.appendChild(pasteIcon);
+    const copyButton = document.createElement("div");
+    copyButton.onclick = (event) => {
+        const target = event.target.closest(".filter-control-icon");
+        document.getElementById("save-cancel").style.display = "flex";
+        filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).copy = !target.classList.contains("active");
+        renderFilterLists();
+        updateToggles(); // in case they updated the active filter
+    }
+    const copyIconText = document.createElement("span");
+    copyIconText.innerText = "COPY";
+    copyButton.appendChild(copyIconText);
+    copyButton.classList.add("copy-toggle");
+    copyButton.classList.add("filter-control-icon");
+    if (filter.copy) copyButton.classList.add("active");
+    controlDiv.appendChild(copyButton);
 
-    const deleteIcon = document.createElement("div");
-    const deleteIconImg = document.createElement("img");
-    deleteIconImg.src = "trash.svg";
-    deleteIcon.appendChild(deleteIconImg);
-    deleteIcon.classList.add("delete");
-    deleteIcon.classList.add("filter-control-icon");
-    div.appendChild(deleteIcon);
+    const pasteButton = document.createElement("div");
+    pasteButton.onclick = (event) => {
+        const target = event.target.closest(".filter-control-icon");
+        document.getElementById("save-cancel").style.display = "flex";
+        filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).paste = !target.classList.contains("active");
+        renderFilterLists();
+        updateToggles(); // in case they updated the active filter
+    }
+    const pasteIconText = document.createElement("span");
+    pasteIconText.innerText = "PASTE";
+    pasteButton.appendChild(pasteIconText);
+    pasteButton.classList.add("paste-toggle");
+    pasteButton.classList.add("filter-control-icon");
+    if (filter.paste) pasteButton.classList.add("active");
+    controlDiv.appendChild(pasteButton);
 
+    // const deleteButton = document.createElement("div");
+    // const deleteIconText = document.createElement("span");
+    // deleteIconText.innerText = "Delete";
+    // deleteButton.appendChild(deleteIconText);
+    // deleteButton.classList.add("delete");
+    // deleteButton.classList.add("filter-control-icon");
+    // controlDiv.appendChild(deleteButton);
+
+    div.appendChild(controlDiv);
     div.dataset.uuid = filter.uuid;
     return div;
 }

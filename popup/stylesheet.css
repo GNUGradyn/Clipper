@@ -86,6 +86,7 @@ body {
 
 .filter {
     display: flex;
+    margin-bottom: 5px;
 }
 
 .filter input {
@@ -93,9 +94,11 @@ body {
     padding: 5px;
     border: none;
     border-radius: 10px;
-    margin-bottom: 5px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     color: white;
     width: 100%;
+    box-sizing: border-box;
 }
 
 #save-cancel {
@@ -125,8 +128,9 @@ body {
     cursor: pointer;
 }
 
-.delete img {
-    filter: invert(10%) sepia(87%) saturate(5745%) hue-rotate(2deg) brightness(118%) contrast(118%);
+.delete span {
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 .delete {
@@ -134,23 +138,50 @@ body {
 }
 
 .filter-control-icon {
-    margin-left: 3px;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border-radius: 10px;
-    height: 32px;
-    aspect-ratio: 1/1;
+    cursor: pointer;
+    padding: 3px;
+    user-select: none;
+    -webkit-user-select: none;
+    background-color: #1f1f26;
+    color: #7a7a7a;
+    flex-grow: 1;
+    font-size: 12px;
+    padding: 8px;
 }
 
-.copy-toggle, .paste-toggle {
-    background-color: #de4e4e
+.copy-toggle {
+    border-radius: 0;
+    position: relative;
+}
+.copy-toggle:after {
+    content: '';
+    height: 70%;
+    width: 1px;
+    position: absolute;
+    right: 0;
+    top: 4px; 
+    background-color: #414143;
+    border-radius: 10px;
 }
 
-.copy-toggle.active, .paste-toggle-active {
-    background-color: #53a362;
+.paste-toggle {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.filter-control-icon.active {
+    color: #6ab254;
 }
 
 .filter-control-icon img {
     height: 23px;
+}
+
+.filter-controls {
+    display: flex;
 }
