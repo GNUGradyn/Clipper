@@ -20,11 +20,13 @@ const startup = async () => {
         document.body.style.padding = "10px";
         return;
     }
-    active = filters.filter(x => checkUrlAgainstFilter(activeTab.url, x.filter)).sort((a, b) => b.filter.length - a.filter.length);
     currentUrl = activeTab.url;
+    updateActiveFilters();
     updateToggles();
     renderFilterLists();
 }
+
+const updateActiveFilters = () => active = filters.filter(x => checkUrlAgainstFilter(currentUrl, x.filter)).sort((a, b) => b.filter.length - a.filter.length);
 
 const updateToggles = () => {
     document.getElementById("copy-toggle").checked = active[0]?.copy ?? false;
@@ -92,14 +94,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     document.getElementById("cancel").onclick = (event) => {
         importFilters().then(() => {
-            renderFilterLists();
             document.getElementById("save-cancel").style.display = "none";
-            updateToggles(); // in case they updated the active filter and then cancelled it
+            updateActiveFilters(); // in case they updated an active filter
+            renderFilterLists();
         });
     }
     document.getElementById("save").onclick = (event) => {
         document.getElementById("save-cancel").style.display = "none";
         save();
+        updateToggles(); // in case they updated the active filter
+        updateActiveFilters(); // in case they updated an active filter
     }
     document.getElementById("new-filter").onclick = (event) => {
         allFiltersSearchQuery = "";
@@ -163,7 +167,6 @@ const renderFilter = (filter) => {
         document.getElementById("save-cancel").style.display = "flex";
         filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).copy = !target.classList.contains("active");
         renderFilterLists();
-        updateToggles(); // in case they updated the active filter
     }
     const copyIconText = document.createElement("span");
     copyIconText.innerText = "COPY";
@@ -179,7 +182,6 @@ const renderFilter = (filter) => {
         document.getElementById("save-cancel").style.display = "flex";
         filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).paste = !target.classList.contains("active");
         renderFilterLists();
-        updateToggles(); // in case they updated the active filter
     }
     const pasteIconText = document.createElement("span");
     pasteIconText.innerText = "PASTE";
