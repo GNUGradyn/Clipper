@@ -191,13 +191,19 @@ const renderFilter = (filter) => {
     if (filter.paste) pasteButton.classList.add("active");
     controlDiv.appendChild(pasteButton);
 
-    // const deleteButton = document.createElement("div");
-    // const deleteIconText = document.createElement("span");
-    // deleteIconText.innerText = "Delete";
-    // deleteButton.appendChild(deleteIconText);
-    // deleteButton.classList.add("delete");
-    // deleteButton.classList.add("filter-control-icon");
-    // controlDiv.appendChild(deleteButton);
+    const deleteButton = document.createElement("div");
+    deleteButton.onclick = (event) => {
+        const target = event.target.closest(".filter");
+        document.getElementById("save-cancel").style.display = "flex";
+        filters = filters.filter(x => x.uuid != target.dataset.uuid);
+        updateActiveFilters(); // in case they deleted an active filter
+        renderFilterLists();
+    }
+    deleteButton.classList.add("delete-button");
+    const deleteButtonImg = document.createElement("img");
+    deleteButtonImg.src = "x.svg";
+    deleteButton.appendChild(deleteButtonImg);
+    controlDiv.appendChild(deleteButton);
 
     div.appendChild(controlDiv);
     div.dataset.uuid = filter.uuid;

@@ -87,6 +87,7 @@ body {
 .filter {
     display: flex;
     margin-bottom: 5px;
+    position: relative;
 }
 
 .filter input {
@@ -184,4 +185,24 @@ body {
 
 .filter-controls {
     display: flex;
+}
+
+.delete-button {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #1f1f26;
+    padding: 2px;
+    border-radius: 100%;
+    border: 2px solid white;
+    height: 8px;
+    width: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.delete-button img {
+    height: 6px;
 }
