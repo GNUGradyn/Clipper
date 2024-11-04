@@ -4,11 +4,12 @@
     "version": "1.0",
     "description": "Bypasses clipboard restrictions on webpages",
     "icons": {
-      "48": "clipper.svg"
+      "48": "clipper-48.png",
+      "16": "clipper-16.png"
     },
     "homepage_url": "https://github.com/GNUGradyn/Clipper",
     "action": {
-      "default_icon": "clipper.svg",
+      "default_icon": "clipper-16.png",
       "default_title": "Clipper",
       "default_popup": "popup/popup.html"
     },
