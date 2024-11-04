@@ -148,6 +148,33 @@ const renderFilter = (filter) => {
         filters.find(x => x.uuid == event.target.closest('.filter').dataset.uuid).filter = event.target.value;
     }
     div.appendChild(input);
+
+    const copyIcon = document.createElement("div");
+    const copyIconImg = document.createElement("img");
+    copyIconImg.src = "copy.svg";
+    copyIcon.appendChild(copyIconImg);
+    copyIcon.classList.add("copy-toggle");
+    copyIcon.classList.add("filter-control-icon");
+    if (filter.copy) copyIcon.classList.add("active");
+    div.appendChild(copyIcon);
+
+    const pasteIcon = document.createElement("div");
+    const pasteIconImg = document.createElement("img");
+    pasteIconImg.src = "paste.svg";
+    pasteIcon.appendChild(pasteIconImg);
+    pasteIcon.classList.add("paste-toggle");
+    pasteIcon.classList.add("filter-control-icon");
+    if (filter.paste) copyIcon.classList.add("active");
+    div.appendChild(pasteIcon);
+
+    const deleteIcon = document.createElement("div");
+    const deleteIconImg = document.createElement("img");
+    deleteIconImg.src = "trash.svg";
+    deleteIcon.appendChild(deleteIconImg);
+    deleteIcon.classList.add("delete");
+    deleteIcon.classList.add("filter-control-icon");
+    div.appendChild(deleteIcon);
+
     div.dataset.uuid = filter.uuid;
     return div;
 }

@@ -2,7 +2,7 @@ body {
     background-color: #101b23;
     color: white;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    width: 300px;
+    width: 350px;
     height: 100%;
     margin: 0;
 }
@@ -123,4 +123,34 @@ body {
     font-size: 25px;
     padding: 10px;
     cursor: pointer;
+}
+
+.delete img {
+    filter: invert(10%) sepia(87%) saturate(5745%) hue-rotate(2deg) brightness(118%) contrast(118%);
+}
+
+.delete {
+    background-color: #373744;
+}
+
+.filter-control-icon {
+    margin-left: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    height: 32px;
+    aspect-ratio: 1/1;
+}
+
+.copy-toggle, .paste-toggle {
+    background-color: #de4e4e
+}
+
+.copy-toggle.active, .paste-toggle-active {
+    background-color: #53a362;
+}
+
+.filter-control-icon img {
+    height: 23px;
 }
