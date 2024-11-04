@@ -115,3 +115,12 @@ body {
     padding: 7px;
     cursor: pointer;
 }
+
+#new-filter {
+    user-select: none;
+    -webkit-user-select: none;
+    font-weight: 700;
+    font-size: 25px;
+    padding: 10px;
+    cursor: pointer;
+}

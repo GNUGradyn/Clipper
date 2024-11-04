@@ -4,11 +4,14 @@ var filters = [];
 var active = [];
 var currentUrl = "";
 var allFiltersSearchQuery = "";
-var updated = [];
 
-const startup = async () => {
+const importFilters = async () => {
     const filterStore = await browser.storage.local.get("filters");
     filters = filterStore.filters ?? []; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
+}
+
+const startup = async () => {
+    await importFilters();
     const tabs = await browser.tabs.query({active: true, currentWindow: true});
     let activeTab = tabs[0];
     if (!activeTab.url.startsWith("http")) {
@@ -84,25 +87,30 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAllFilterList();
     }
     document.getElementById("cancel").onclick = (event) => {
-        renderAllFilterList();
-        updated = [];
-        document.getElementById("save-cancel").style.display = "none";
+        importFilters().then(() => {
+            renderAllFilterList();
+            document.getElementById("save-cancel").style.display = "none";
+        });
     }
     document.getElementById("save").onclick = (event) => {
         document.getElementById("save-cancel").style.display = "none";
-        updated.forEach(x => {
-            filters.find(y => y.uuid == x).filter = document.querySelector(`[data-uuid="${x}"]`).getElementsByTagName("input")[0].value;
-        })
         save();
+    }
+    document.getElementById("new-filter").onclick = (event) => {
+        allFiltersSearchQuery = "";
+        document.getElementById("save-cancel").style.display = "flex";
+        filters.push(createFilter(getDefaultFilterForUrl(currentUrl), false, false, true));
+        renderAllFilterList();
     }
 });
 
-const createFilter = (filter, copy, paste) => {
+const createFilter = (filter, copy, paste, isNew = false) => {
     return {
         uuid: crypto.randomUUID(),
         filter,
         copy,
-        paste
+        paste,
+        isNew
     }
 }
 
@@ -118,10 +126,12 @@ const modifyActiveFilter = async (copy, paste) => {
     filter.copy = copy;
     filter.paste = paste;
     await save();
-    renderFilterLists();
 }
 
-const save = async () => await browser.storage.local.set({filters});
+const save = async () => {
+    await browser.storage.local.set({filters});
+    await renderFilterLists();
+}
 
 const renderFilterLists = () => {
     renderActiveFilterList();
@@ -135,7 +145,7 @@ const renderFilter = (filter) => {
     input.value = filter.filter;
     input.oninput = (event) => {
         document.getElementById("save-cancel").style.display = "flex";
-        if (updated.indexOf(filter.uuid) == -1) updated.push(filter.uuid);
+        filters.find(x => x.uuid == event.target.closest('.filter').dataset.uuid).filter = event.target.value;
     }
     div.appendChild(input);
     div.dataset.uuid = filter.uuid;
@@ -153,7 +163,7 @@ const renderActiveFilterList = async () => {
 const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
-    for (var currentFilter of filters) {
+    for (var currentFilter of filters.sort((a,b) => b.isNew ?? false > a.isNew ?? false)) {
         if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
         allFilters.appendChild(renderFilter(currentFilter));
     }
