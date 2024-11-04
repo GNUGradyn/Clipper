@@ -4,6 +4,7 @@ var filters = [];
 var active = [];
 var currentUrl = "";
 var allFiltersSearchQuery = "";
+var updated = [];
 
 const startup = async () => {
     const filterStore = await browser.storage.local.get("filters");
@@ -84,7 +85,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     document.getElementById("cancel").onclick = (event) => {
         renderAllFilterList();
+        updated = [];
         document.getElementById("save-cancel").style.display = "none";
+    }
+    document.getElementById("save").onclick = (event) => {
+        document.getElementById("save-cancel").style.display = "none";
+        updated.forEach(x => {
+            filters.find(y => y.uuid == x).filter = document.querySelector(`[data-uuid="${x}"]`).getElementsByTagName("input")[0].value;
+        })
+        save();
     }
 });
 
@@ -108,24 +117,28 @@ const modifyActiveFilter = async (copy, paste) => {
     }
     filter.copy = copy;
     filter.paste = paste;
-    await browser.storage.local.set({filters});
+    await save();
     renderFilterLists();
 }
+
+const save = async () => await browser.storage.local.set({filters});
 
 const renderFilterLists = () => {
     renderActiveFilterList();
     renderAllFilterList();
 }
 
-const renderFilter = (filter, copy, paste) => {
+const renderFilter = (filter) => {
     const div = document.createElement("div");
     div.classList.add("filter");
     const input = document.createElement("input");
-    input.value = filter;
+    input.value = filter.filter;
     input.oninput = (event) => {
         document.getElementById("save-cancel").style.display = "flex";
+        if (updated.indexOf(filter.uuid) == -1) updated.push(filter.uuid);
     }
     div.appendChild(input);
+    div.dataset.uuid = filter.uuid;
     return div;
 }
 
@@ -133,7 +146,7 @@ const renderActiveFilterList = async () => {
     const applicableFilters = document.getElementById("applicable-filters");
     applicableFilters.innerHTML = "";
     for (var activeFilter of active) {
-        applicableFilters.appendChild(renderFilter(activeFilter.filter, activeFilter.copy, activeFilter.paste));
+        applicableFilters.appendChild(renderFilter(activeFilter));
     }
 }
 
@@ -142,7 +155,7 @@ const renderAllFilterList = async () => {
     allFilters.innerHTML = "";
     for (var currentFilter of filters) {
         if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
-        allFilters.appendChild(renderFilter(currentFilter.filter, currentFilter.copy, currentFilter.paste));
+        allFilters.appendChild(renderFilter(currentFilter));
     }
 }
 
