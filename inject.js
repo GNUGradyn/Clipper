@@ -24,7 +24,17 @@ document.addEventListener("copy", (event) => {
 
 document.addEventListener("paste", (event) => {
     if (shouldPreventPaste) event.stopImmediatePropagation();
-})
+}, { capture: true, once: false })
+
+const injectionTarget = document.head || document.documentElement || null;
+if (injectionTarget) {
+    const script = document.createElement("script");
+    script.textContent = "(" + interceptInlineClipboardEvents.toString() + ")()";
+    injectionTarget.prepend(script);
+} else {
+    console.error("Failed to determine where to inject some parts of Clipper! Functionality is limited. Please report this to Clipper at https://github.com/GNUGradyn/clipper/issues and include what page you saw this on")
+}
+// End inline event protection
 
 browser.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && changes.filters) {
