@@ -6,16 +6,21 @@
             addEventListener("copy", (event) => {
                 event.clipboardData.setData("text/plain", "your copy has been foiled! you fool!");
                 event.preventDefault();
-            })
+            });
             addEventListener("paste", (event) => {
                 if (event.target.id == "nopaste") event.preventDefault();
-            })
+            });
         </script>
     </head>
     <body>
         <p>Try to copy me!</p>
+        <p oncopy="return false;">Try to copy me! (with inline event handler)</p>
         <textarea placeholder="Normal textarea for copy testing"></textarea>
         <br>
         <textarea placeholder="Try to paste here!" id="nopaste"></textarea>
+        <br>
+        <textarea placeholder="Try to paste here! (inline event handler)" onpaste="return false;"></textarea>
+        <h1>iframe</h1>
+        <iframe src="https://host.gradyn.com/iframe.html"></iframe>
     </body>
 </html>
