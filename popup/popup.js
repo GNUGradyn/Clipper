@@ -37,44 +37,6 @@ const getDefaultFilterForUrl = (url) => {
     return url.split("/").slice(0,3).join("/") + "/*";
 }
 
-/**
- * @param {string} url - The URL
- * @param {string} filter - The filter
- * @returns {boolean} Rather or not the URL matches the filter
- */
-const checkUrlAgainstFilter = (url, filter) => {
-    const urlLowercase = url.toLowerCase();
-    const filterLowercase = filter.toLowerCase();
-    
-    let url_ptr = 0;
-    let fil_ptr = 0;
-    let url_last_wildcard = -1;
-    let fil_last_wildcard = -1;
-
-    while (url_ptr < urlLowercase.length) {
-        if (filterLowercase[fil_ptr] == urlLowercase[url_ptr]) {
-            fil_ptr++;
-            url_ptr++;
-        } else if (filterLowercase[fil_ptr] == "*") {
-            fil_ptr++;
-            fil_last_wildcard = fil_ptr;
-            url_last_wildcard = url_ptr;
-        } else if (fil_last_wildcard != -1) {
-            fil_ptr = fil_last_wildcard;
-            url_ptr = url_last_wildcard;
-            url_last_wildcard++;
-        } else {
-            return false;
-        }
-    }
-
-    while (filterLowercase[fil_ptr] == "*") {
-        fil_ptr++;
-    }
-
-    return fil_ptr == filterLowercase.length;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("copy-toggle").onchange = () => {
         modifyActiveFilter(
