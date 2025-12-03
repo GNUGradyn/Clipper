@@ -1,9 +1,16 @@
 "use strict"
+
 let filters = [];
+const EXTENSION_BASE_URL = browser.runtime.getURL("");
 
 const updateFiltersFromStorage = async () => {
     const filterStore = await browser.storage.local.get("filters");
     filters = filterStore.filters ?? [];
+    await pushFlagsToAllTabs();
+}
+
+const save = async () => {
+    await browser.storage.local.set({filters});
 }
 
 updateFiltersFromStorage(); // startup
@@ -16,13 +23,32 @@ const determineFlagsForUrl = (url) => {
         checkUrlAgainstFilter(url, f.filter) && f.paste
     );
 
-    return { shouldPreventCopy, shouldPreventPaste };
+    return {shouldPreventCopy, shouldPreventPaste};
 };
 
-const pushFlagsToTab = (tabId, url) => {
+browser.runtime.onMessage.addListener(async (message, sender) => {
+
+    // Gate security sensitive messages to this extension to prevent attacks where an extension is coerced into sending messages to this worker
+    if (typeof sender.url == "string" && sender.url.startsWith(EXTENSION_BASE_URL)) {
+        switch (message.type) {
+            case "GET_ALL_FILTERS":
+                return filters;
+            case "GET_ALL_FILTERS_APPLICABLE_FOR_URL":
+                return filters.filter(f => checkUrlAgainstFilter(message.url, f.filter));
+            case "SET_FILTERS":
+                filters = message.filters;
+                await save();
+                return true;
+        }
+    } else {
+        throw Error("Message from untrusted source");
+    }
+});
+
+const pushFlagsToTab = async (tabId, url) => {
     if (!url) return;
 
-    const { shouldPreventCopy, shouldPreventPaste } = determineFlagsForUrl(url);
+    const {shouldPreventCopy, shouldPreventPaste} = determineFlagsForUrl(url);
 
     browser.tabs.sendMessage(tabId, {
         type: "CLIPPER_FLAGS",
@@ -33,13 +59,14 @@ const pushFlagsToTab = (tabId, url) => {
     });
 }
 
+const pushFlagsToAllTabs = async () => {
+    const tabs = await browser.tabs.query({});
+    tabs.forEach(tab => pushFlagsToTab(tab.id, tab.url));
+}
+
 browser.storage.onChanged.addListener((changes, area) => {
     if (area == "local" && changes.filters) updateFiltersFromStorage();
 });
-
-// browser.tabs.onCreated.addListener((tab) => {
-//     pushFlagsToTab(tab.id, tab.url);
-// });
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // URL changed OR load completed -> we know the "real" top URL

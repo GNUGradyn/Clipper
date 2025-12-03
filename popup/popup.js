@@ -6,12 +6,11 @@ var currentUrl = "";
 var allFiltersSearchQuery = "";
 
 const importFilters = async () => {
-    const filterStore = await browser.storage.local.get("filters");
-    filters = filterStore.filters ?? []; // I cannot figure out how to get it to not wrap the result in an object like this, but we can unrwap it this way
+    filters = await browser.runtime.sendMessage({type: "GET_ALL_FILTERS"}) ?? [];
+    await updateActiveFilters();
 }
 
 const startup = async () => {
-    await importFilters();
     const tabs = await browser.tabs.query({active: true, currentWindow: true});
     let activeTab = tabs[0];
     if (!activeTab.url.startsWith("http")) {
@@ -21,12 +20,15 @@ const startup = async () => {
         return;
     }
     currentUrl = activeTab.url;
-    updateActiveFilters();
+    await importFilters();
     updateToggles();
-    renderFilterLists();
+    await renderFilterLists();
 }
 
-const updateActiveFilters = () => active = filters.filter(x => checkUrlAgainstFilter(currentUrl, x.filter)).sort((a, b) => b.filter.length - a.filter.length);
+const updateActiveFilters = async () => active = await browser.runtime.sendMessage({
+    type: "GET_ALL_FILTERS_APPLICABLE_FOR_URL",
+    url: currentUrl
+}) ?? [];
 
 const updateToggles = () => {
     document.getElementById("copy-toggle").checked = active[0]?.copy ?? false;
@@ -34,7 +36,7 @@ const updateToggles = () => {
 }
 
 const getDefaultFilterForUrl = (url) => {
-    return url.split("/").slice(0,3).join("/") + "/*";
+    return url.split("/").slice(0, 3).join("/") + "/*";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -50,28 +52,25 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("paste-toggle").checked
         );
     }
-    document.getElementById("all-filter-search").oninput = (event) => {
+    document.getElementById("all-filter-search").oninput = async (event) => {
         allFiltersSearchQuery = event.target.value;
-        renderAllFilterList();
+       await renderFilterLists();
     }
-    document.getElementById("cancel").onclick = (event) => {
-        importFilters().then(() => {
-            document.getElementById("save-cancel").style.display = "none";
-            updateActiveFilters(); // in case they updated an active filter
-            renderFilterLists();
-        });
-    }
-    document.getElementById("save").onclick = (event) => {
+    document.getElementById("cancel").onclick = async (event) => {
+        await importFilters();
         document.getElementById("save-cancel").style.display = "none";
-        save();
-        updateToggles(); // in case they updated the active filter
-        updateActiveFilters(); // in case they updated an active filter
+        await renderFilterLists();
     }
-    document.getElementById("new-filter").onclick = (event) => {
+    document.getElementById("save").onclick = async (event) => {
+        document.getElementById("save-cancel").style.display = "none";
+        await save();
+        updateToggles(); // in case they updated the active filter
+    }
+    document.getElementById("new-filter").onclick = async (event) => {
         allFiltersSearchQuery = "";
         document.getElementById("save-cancel").style.display = "flex";
         filters.push(createFilter(getDefaultFilterForUrl(currentUrl), false, false, true));
-        renderAllFilterList();
+        await renderFilterLists();
     }
 });
 
@@ -86,8 +85,8 @@ const createFilter = (filter, copy, paste, isNew = false) => {
 }
 
 const modifyActiveFilter = async (copy, paste) => {
-    var filter = {};
-    if (active.length == 0) {
+    let filter = {};
+    if (active.length === 0) {
         filter = createFilter(getDefaultFilterForUrl(currentUrl), copy, paste);
         active.push(filter);
         filters.push(filter);
@@ -96,17 +95,19 @@ const modifyActiveFilter = async (copy, paste) => {
     }
     filter.copy = copy;
     filter.paste = paste;
+    await renderFilterLists();
     await save();
 }
 
 const save = async () => {
-    await browser.storage.local.set({filters});
+    await browser.runtime.sendMessage({type: "SET_FILTERS", filters: filters});
+    await updateActiveFilters(); // in case the active filter was modified
     await renderFilterLists();
 }
 
-const renderFilterLists = () => {
-    renderActiveFilterList();
-    renderAllFilterList();
+const renderFilterLists = async () => {
+    await renderActiveFilterList();
+    await renderAllFilterList();
 }
 
 const renderFilter = (filter) => {
@@ -124,11 +125,11 @@ const renderFilter = (filter) => {
     controlDiv.classList.add("filter-controls");
 
     const copyButton = document.createElement("div");
-    copyButton.onclick = (event) => {
+    copyButton.onclick = async (event) => {
         const target = event.target.closest(".filter-control-icon");
         document.getElementById("save-cancel").style.display = "flex";
         filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).copy = !target.classList.contains("active");
-        renderFilterLists();
+        await renderFilterLists();
     }
     const copyIconText = document.createElement("span");
     copyIconText.innerText = "COPY";
@@ -139,11 +140,11 @@ const renderFilter = (filter) => {
     controlDiv.appendChild(copyButton);
 
     const pasteButton = document.createElement("div");
-    pasteButton.onclick = (event) => {
+    pasteButton.onclick = async (event) => {
         const target = event.target.closest(".filter-control-icon");
         document.getElementById("save-cancel").style.display = "flex";
         filters.find(x => x.uuid == target.closest('.filter').dataset.uuid).paste = !target.classList.contains("active");
-        renderFilterLists();
+        await renderFilterLists();
     }
     const pasteIconText = document.createElement("span");
     pasteIconText.innerText = "PASTE";
@@ -154,12 +155,11 @@ const renderFilter = (filter) => {
     controlDiv.appendChild(pasteButton);
 
     const deleteButton = document.createElement("div");
-    deleteButton.onclick = (event) => {
+    deleteButton.onclick = async (event) => {
         const target = event.target.closest(".filter");
         document.getElementById("save-cancel").style.display = "flex";
         filters = filters.filter(x => x.uuid != target.dataset.uuid);
-        updateActiveFilters(); // in case they deleted an active filter
-        renderFilterLists();
+        await renderFilterLists();
     }
     deleteButton.classList.add("delete-button");
     const deleteButtonImg = document.createElement("img");
@@ -183,7 +183,7 @@ const renderActiveFilterList = async () => {
 const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
-    for (var currentFilter of filters.sort((a,b) => b.isNew ?? false > a.isNew ?? false)) {
+    for (var currentFilter of filters.sort((a, b) => b.isNew ?? false > a.isNew ?? false)) {
         if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
         allFilters.appendChild(renderFilter(currentFilter));
     }
