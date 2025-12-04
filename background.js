@@ -1,21 +1,30 @@
 "use strict"
 
-let filters = [];
+if (typeof self.browser === "undefined") importScripts("browser-polyfill.min.js");
+
+let _filters = null; // do not reference directly. may not be hydrated. use getFilters() instead.
 const EXTENSION_BASE_URL = browser.runtime.getURL("");
+
+const getFilters = async () => {
+    if (_filters == null) await updateFiltersFromStorage();
+    return _filters;
+}
 
 const updateFiltersFromStorage = async () => {
     const filterStore = await browser.storage.local.get("filters");
-    filters = filterStore.filters ?? [];
+    _filters = filterStore.filters ?? [];
     await pushFlagsToAllTabs();
 }
 
 const save = async () => {
+    const filters = await getFilters();
     await browser.storage.local.set({filters});
 }
 
-updateFiltersFromStorage(); // startup
+void getFilters(); // startup
 
-const determineFlagsForUrl = (url) => {
+const determineFlagsForUrl = async (url) => {
+    const filters = await getFilters();
     const shouldPreventCopy = filters.some(f =>
         checkUrlAgainstFilter(url, f.filter) && f.copy
     );
@@ -32,11 +41,11 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     if (typeof sender.url == "string" && sender.url.startsWith(EXTENSION_BASE_URL)) {
         switch (message.type) {
             case "GET_ALL_FILTERS":
-                return filters;
+                return await getFilters();
             case "GET_ALL_FILTERS_APPLICABLE_FOR_URL":
-                return filters.filter(f => checkUrlAgainstFilter(message.url, f.filter));
+                return (await getFilters()).filter(f => checkUrlAgainstFilter(message.url, f.filter));
             case "SET_FILTERS":
-                filters = message.filters;
+                _filters = message.filters ?? [];
                 await save();
                 await pushFlagsToAllTabs();
                 return true;
@@ -49,7 +58,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 const pushFlagsToTab = async (tabId, url) => {
     if (!url) return;
 
-    const {shouldPreventCopy, shouldPreventPaste} = determineFlagsForUrl(url);
+    const {shouldPreventCopy, shouldPreventPaste} = await determineFlagsForUrl(url);
 
     browser.tabs.sendMessage(tabId, {
         type: "CLIPPER_FLAGS",
@@ -68,7 +77,7 @@ const pushFlagsToAllTabs = async () => {
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // URL changed OR load completed -> we know the "real" top URL
     if (changeInfo.url || changeInfo.status === "complete") {
-        pushFlagsToTab(tabId, tab.url);
+        void pushFlagsToTab(tabId, tab.url);
     }
 });
 

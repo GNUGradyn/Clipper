@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Clipper",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Bypasses clipboard restrictions on webpages",
   "icons": {
     "48": "clipper-48.png",
@@ -31,7 +31,7 @@
     }
   ],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "browser_specific_settings": {
     "gecko": {

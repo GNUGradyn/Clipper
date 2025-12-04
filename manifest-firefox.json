@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Clipper",
+  "version": "1.2",
+  "description": "Bypasses clipboard restrictions on webpages",
+  "icons": {
+    "48": "clipper-48.png",
+    "16": "clipper-16.png"
+  },
+  "homepage_url": "https://github.com/GNUGradyn/Clipper",
+  "action": {
+    "default_icon": "clipper-16.png",
+    "default_title": "Clipper",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "browser-polyfill.min.js",
+        "inject.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "clipper@gradyn.com"
+    }
+  }
+}
