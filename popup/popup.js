@@ -93,10 +93,9 @@ const modifyActiveFilter = async (copy, paste) => {
     let filter;
     if (active.length === 0) {
         filter = createFilter(getDefaultFilterForUrl(currentUrl), copy, paste);
-        active.push(filter);
         filters.push(filter);
     } else {
-        filter = active[0];
+        filter = filters.find(f => f.uuid === active[0].uuid) ?? active[0];
     }
     filter.copy = copy;
     filter.paste = paste;
