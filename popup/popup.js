@@ -25,10 +25,13 @@ const startup = async () => {
     await renderFilterLists();
 }
 
-const updateActiveFilters = async () => active = await browser.runtime.sendMessage({
-    type: "GET_ALL_FILTERS_APPLICABLE_FOR_URL",
-    url: currentUrl
-}) ?? [];
+const updateActiveFilters = async () => {
+    const result = await browser.runtime.sendMessage({
+        type: "GET_ALL_FILTERS_APPLICABLE_FOR_URL",
+        url: currentUrl
+    });
+    active = result ?? [];
+};
 
 const updateToggles = () => {
     document.getElementById("copy-toggle").checked = active[0]?.copy ?? false;
@@ -39,18 +42,19 @@ const getDefaultFilterForUrl = (url) => {
     return url.split("/").slice(0, 3).join("/") + "/*";
 }
 
+const updateCurrentFilter = async () => {
+    await modifyActiveFilter(
+        document.getElementById("copy-toggle").checked,
+        document.getElementById("paste-toggle").checked
+    );
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("copy-toggle").onchange = () => {
-        modifyActiveFilter(
-            document.getElementById("copy-toggle").checked,
-            document.getElementById("paste-toggle").checked
-        );
+        void updateCurrentFilter();
     }
     document.getElementById("paste-toggle").onchange = () => {
-        modifyActiveFilter(
-            document.getElementById("copy-toggle").checked,
-            document.getElementById("paste-toggle").checked
-        );
+        void updateCurrentFilter();
     }
     document.getElementById("all-filter-search").oninput = async (event) => {
         allFiltersSearchQuery = event.target.value;
@@ -58,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     document.getElementById("cancel").onclick = async (event) => {
         await importFilters();
+        updateToggles(); // in case they updated the active filter
         document.getElementById("save-cancel").style.display = "none";
         await renderFilterLists();
     }
@@ -85,7 +90,7 @@ const createFilter = (filter, copy, paste, isNew = false) => {
 }
 
 const modifyActiveFilter = async (copy, paste) => {
-    let filter = {};
+    let filter;
     if (active.length === 0) {
         filter = createFilter(getDefaultFilterForUrl(currentUrl), copy, paste);
         active.push(filter);
@@ -95,7 +100,6 @@ const modifyActiveFilter = async (copy, paste) => {
     }
     filter.copy = copy;
     filter.paste = paste;
-    await renderFilterLists();
     await save();
 }
 
@@ -183,8 +187,14 @@ const renderActiveFilterList = async () => {
 const renderAllFilterList = async () => {
     const allFilters = document.getElementById("all-filters");
     allFilters.innerHTML = "";
-    for (var currentFilter of filters.sort((a, b) => b.isNew ?? false > a.isNew ?? false)) {
-        if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery) == -1) continue;
+
+    const sorted = filters.slice().sort((a, b) =>
+        (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0)
+    );
+
+
+    for (var currentFilter of sorted) {
+        if (allFiltersSearchQuery != "" && currentFilter.filter.toLowerCase().indexOf(allFiltersSearchQuery.toLowerCase()) == -1) continue;
         allFilters.appendChild(renderFilter(currentFilter));
     }
 }

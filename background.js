@@ -38,6 +38,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
             case "SET_FILTERS":
                 filters = message.filters;
                 await save();
+                await pushFlagsToAllTabs();
                 return true;
         }
     } else {
@@ -63,10 +64,6 @@ const pushFlagsToAllTabs = async () => {
     const tabs = await browser.tabs.query({});
     tabs.forEach(tab => pushFlagsToTab(tab.id, tab.url));
 }
-
-browser.storage.onChanged.addListener((changes, area) => {
-    if (area == "local" && changes.filters) updateFiltersFromStorage();
-});
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // URL changed OR load completed -> we know the "real" top URL

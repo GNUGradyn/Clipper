@@ -15,5 +15,4 @@ document.addEventListener("copy", (event) => {
 
 document.addEventListener("paste", (event) => {
     if (shouldPreventPaste) event.stopImmediatePropagation();
-}, {capture: true, once: false})
-
+}, {capture: true, once: false});
