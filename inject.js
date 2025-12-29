@@ -3,7 +3,6 @@ let shouldPreventPaste = false;
 
 browser.runtime.onMessage.addListener((message) => {
     if (message?.type === "CLIPPER_FLAGS") {
-        console.log(message);
         shouldPreventCopy = message.shouldPreventCopy;
         shouldPreventPaste = message.shouldPreventPaste;
     }
